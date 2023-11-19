@@ -1,78 +1,14 @@
+import java.util.Scanner;
 import java.util.*;
 import java.io.*;
 import java.nio.file.Paths;
 import java.nio.file.Path;
-class Node {
-    private int parent;
-    private int left;
-    private int right;
-    private int probability;
-    private char symbol;
-    private String code;
-    private boolean merged;
-
-    public Node(int probability, char symbol) {
-        this.parent = -1;
-        this.right = -1;
-        this.left = -1;
-        this.probability = probability;
-        this.symbol = symbol;
-        this.code = "";
-        this.merged = false;
-    }
-
-    public void setChildren(int left, int right) {
-        this.left = left;
-        this.right = right;
-    }
-
-    public void setParent(int parent) {
-        this.parent = parent;
-    }
-
-    public void merging() {
-        this.merged = true;
-    }
-
-    public char getSymbol() {
-        return this.symbol;
-    }
-
-    public int getRight() {
-        return this.right;
-    }
-
-    public int getLeft() {
-        return this.left;
-    }
-
-    public int getProbability() {
-        return this.probability;
-    }
-
-    public int getParent() {
-        return this.parent;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public boolean isMerged() {
-        return this.merged;
-    }
-}
-public class HuffmanEncode {
-    public static String createInputString() {
+public class Encode {
+    public static String createInputString(String filePath) {
         StringBuilder inputString = new StringBuilder();
         try {
-            Path filePath = Paths.get("src", "decoded.txt");
-            File file = filePath.toFile();
-            FileReader fileReader = new FileReader(file);
+            Path fileFullPath = Paths.get(filePath);
+            FileReader fileReader = new FileReader(fileFullPath.toFile());
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             String line;
@@ -84,15 +20,13 @@ public class HuffmanEncode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return inputString.toString();
     }
 
     public static Map<Character, Integer> writeSymbols(String str) {
         Map<Character, Integer> dictionary = new HashMap<>();
         for (char sym : str.toCharArray())
-            if (sym != ' ')
-                dictionary.put(sym, dictionary.getOrDefault(sym, 0) + 1);
+            dictionary.put(sym, dictionary.getOrDefault(sym, 0) + 1);
         return dictionary;
     }
 
@@ -140,11 +74,9 @@ public class HuffmanEncode {
         for (int i = nodeList.size() - 2; i >= 0; i--) {
             if (nodeList.get(nodeList.get(i).getParent()).getLeft() == i) {
                 nodeList.get(i).setCode(nodeList.get(nodeList.get(i).getParent()).getCode() + "0");
-                System.out.println(nodeList.get(i).getSymbol() + " " + nodeList.get(i).getProbability()+ " " + nodeList.get(i).getCode());
             }
             if (nodeList.get(nodeList.get(i).getParent()).getRight() == i) {
                 nodeList.get(i).setCode(nodeList.get(nodeList.get(i).getParent()).getCode() + "1");
-                System.out.println(nodeList.get(i).getSymbol() + " " + nodeList.get(i).getProbability()+ " " + nodeList.get(i).getCode());
             }
             if (nodeList.get(i).getSymbol() != '.')
                 codeTable.put(nodeList.get(i).getSymbol(), nodeList.get(i).getCode());
@@ -164,15 +96,42 @@ public class HuffmanEncode {
             e.printStackTrace();
         }
     }
-    public static String encode(String initial, Map<Character, String> codeTable) {
+    public static void writeCodeTableInFile(Map<Character, String> codeTable, String filename) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/" + filename))) {
+            for (Map.Entry<Character, String> entry : codeTable.entrySet()) {
+                String line = entry.getKey() + " : " + entry.getValue();
+                writer.write(line);
+                writer.newLine();
+            }
+            System.out.println("Таблица кодов записана в " + filename);
+        }
+    }
+    public static String encode_process(String initial, Map<Character, String> codeTable) {
         StringBuilder readyFor = new StringBuilder();
         for (char letter : initial.toCharArray()) {
-            if (letter != ' ')
-                readyFor.append(codeTable.get(letter));
-            else
-                readyFor.append(" ");
+            //if (letter != ' ') ////////////
+            //    readyFor.append(codeTable.get(letter));
+            //else
+            //    readyFor.append(" ");
+            readyFor.append(codeTable.get(letter));
         }
         writeInFile(readyFor.toString());
+        try {
+            writeCodeTableInFile(codeTable, "codetable.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return readyFor.toString();
+    }
+    public static void encode()
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please, enter the path of file you want to encode: ");
+        String filePath = scanner.nextLine();
+        String inputString = createInputString(filePath);
+        Map<Character, Integer> symbolDictionary = writeSymbols(inputString);
+        List<Node> nodeList = createNodes(symbolDictionary);
+        Map<Character, String> codeTable = huffmanTree(nodeList);
+        System.out.println(encode_process(inputString, codeTable) + "\n");
     }
 }
