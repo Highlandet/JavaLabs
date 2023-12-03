@@ -109,10 +109,6 @@ public class Encode {
     public static String encode_process(String initial, Map<Character, String> codeTable) {
         StringBuilder readyFor = new StringBuilder();
         for (char letter : initial.toCharArray()) {
-            //if (letter != ' ') ////////////
-            //    readyFor.append(codeTable.get(letter));
-            //else
-            //    readyFor.append(" ");
             readyFor.append(codeTable.get(letter));
         }
         writeInFile(readyFor.toString());
