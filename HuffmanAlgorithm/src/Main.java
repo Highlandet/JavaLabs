@@ -1,29 +1,40 @@
-import java.io.BufferedReader;
-import java.util.*;
+import javax.imageio.IIOException;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args){
-        Scanner scanner = new Scanner(System.in);
-        boolean hasToRun = true;
-        while(hasToRun){
-            System.out.println("Please, enter the program's operating mode\n" +
-                    "If you want to encode your file, write \"Encoding\"\n" +
-                    "If you want to decode your file, write \"Decoding\"\n" +
-                    "If you want to find out the information of coding process, write " +
-                    "\"Informing\"\n" +
-                    "If you want to exit the program, write \"Exit\"");
-            String operating_mode = scanner.nextLine();
-            if("Encoding".equals(operating_mode)) {
-                Encode.encode();
-            } else if ("Decoding".equals(operating_mode)) {
-                Decode.decode();
-            } else if ("Informing".equals(operating_mode)) {
-                Inform.inform();
-            } else if ("Exit".equals(operating_mode)) {
-                hasToRun = false;
-                System.out.println("Goodbye!");
-            } else {
-                System.out.println("Unknown mode.");
+    public static void main(String[] args) {
+        System.out.println("Arguments format: <command> <file path>, where command is Encoding [compress](default), Decoding [decompress], Informing [inform]");
+        String[] nargs = new String[args.length];
+        System.arraycopy(args, 0, nargs, 0, args.length);
+        int compressed_size = 0;
+        int decompressed_size = 0;
+        String current = "";
+        while(true) {
+            String operation = nargs[0];
+            if (operation.equals("Encoding")) {
+                String inputFile = nargs[1];
+                System.out.println("In process . . .");
+                try {
+                    current = inputFile;
+                    Encoder.compress(inputFile, "src/encoded.bin", compressed_size);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Successfully!");
+            }
+            if (operation.equals("Decoding")) {
+                String outputFile = nargs[1];
+                System.out.println("In process . . .");
+                try {
+                    Decoder.decompress("src/encoded.bin", outputFile, decompressed_size);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Successfully!");
+            }
+            if (operation.equals("Informing")) {
+                Informer.getInfo(compressed_size, decompressed_size, current);
             }
         }
     }

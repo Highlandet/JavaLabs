@@ -1,0 +1,7 @@
+Instruction for launching the application:
+1. Go to the source code folder:
+  $ cd ./HuffmanAlgorithm/src
+2. Build the application (see build.txt)
+3. Run the application:
+  $ java Main [Encoding|Decoding|Informing] ./path/to/file
+4. Use Encoding flag to compress a file, Decoding flag to decompress an archive and Informing flag to get compression information.
